@@ -7,7 +7,10 @@ import net.zhuoweizhang.raspberryjuice.cmd.CmdWorld;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -45,6 +48,8 @@ public class RemoteSession {
 
     public ArrayDeque<AsyncPlayerChatEvent> chatPostedQueue = new ArrayDeque<AsyncPlayerChatEvent>();
 
+    public ArrayDeque<ProjectileHitEvent> projectileHitQueue = new ArrayDeque<ProjectileHitEvent>();
+    
     private int maxCommandsPerTick = 9000;
 
     private boolean closed = false;
@@ -111,6 +116,17 @@ public class RemoteSession {
         //plugin.getLogger().info(event.toString());
         chatPostedQueue.add(event);
     }
+    
+    public void queueProjectileHitEvent(ProjectileHitEvent event) {
+		//plugin.getLogger().info(event.toString());
+
+		if (event.getEntityType() == EntityType.ARROW) {
+			Arrow arrow = (Arrow) event.getEntity();
+			if (arrow.getShooter() instanceof Player) {
+				projectileHitQueue.add(event);
+			}
+		}
+	}
 
     /**
      * called from the server main thread
